@@ -1,0 +1,3 @@
+question_id,question,curator_name,domain,date_added,difficulty,file_paths
+ehr-identify-cohort-minimal-q0,"Answer the request detailed in CLAUDE_phase1_minimal.md",Alice Lacan,Clinical data,2026-04-29,4.0,"data/CLAUDE_phase1_minimal.md,data/ehr"
+ehr-identify-ehr-cohort-detailed-q1,"Answer the request detailed in CLAUDE_phase1_exploration.md",Alice Lacan,Clinical data,2026-04-29,4.0,"data/CLAUDE_phase1_exploration.md,data/ehr"

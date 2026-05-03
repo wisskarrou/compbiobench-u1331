@@ -1,0 +1,2 @@
+question_id,question,curator_name,domain,date_added,difficulty,file_paths
+ehr-survival-analysis-q2,"Answer the request detailed in data/CLAUDE_phase2_survival.md",Alice Lacan,Clinical data,2026-04-29,4.0,"data/CLAUDE_phase2_survival.md,data/ehr,data/outputs"
