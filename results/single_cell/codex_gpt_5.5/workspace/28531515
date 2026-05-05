@@ -1,0 +1,143 @@
+### Source code for figure 3 ###
+
+#Fig 3A
+#Created using matlab
+
+#Fig 3B
+#Relating states to public data
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("GSVA")
+library(GSVA)
+library(survival)
+
+#TCGA
+TCGA <- read.table(file='genomicMatrix',sep="\t", stringsAsFactors=FALSE, header=TRUE)
+rownames(TCGA) <- TCGA[,1]
+TCGA<-TCGA[,-1]
+
+TCGA_clinical <- read.table(file='clinical_data',sep="\t", stringsAsFactors=FALSE, header=TRUE)
+rownames(TCGA_clinical) <- TCGA_clinical[,1]
+TCGA_clinical<-TCGA_clinical[,-1]
+
+stateSignatures<-read.table(file='clusterMarkers.txt',sep="\t",header=TRUE)
+geneSet<-list(stateSignatures$State1,stateSignatures$State2,stateSignatures$State3,stateSignatures$State4,stateSignatures$State5,stateSignatures$State6)
+geneSet[[6]]<-geneSet[[6]][1:42]
+
+### 3065 ###
+names(geneSet)<-c('State1','State2','State3','State4','State5','State6')
+
+#Survival analysis
+colnames(TCGA)<-gsub('\\.','-',colnames(TCGA))
+
+idx<-which(rownames(TCGA_clinical) %in% colnames(TCGA))
+TCGA_clinical<-TCGA_clinical[idx,]
+idx<-which(is.na(TCGA_clinical[,21]))
+TCGA_clinical<-TCGA_clinical[-idx,]
+
+idx<-which(colnames(TCGA) %in% rownames(TCGA_clinical))
+TCGA<-TCGA[,idx]
+ssGSEA<-gsva(expr=as.matrix(TCGA),gset.idx.list = geneSet,method='ssgsea') #only on those with survival time
+
+TCGA_clinical[,25]<-gsub('LIVING',1,TCGA_clinical[,25])
+TCGA_clinical[,25]<-gsub('DECEASED',2,TCGA_clinical[,25])
+TCGA_clinical[,25]<-as.numeric(TCGA_clinical[,25])
+
+TCGA_clinical[,78]<-gsub('FEMALE',2,TCGA_clinical[,78])
+TCGA_clinical[,78]<-gsub('MALE',1,TCGA_clinical[,78])
+TCGA_clinical[,78]<-as.numeric(TCGA_clinical[,78])
+
+ssGSEA<-t(ssGSEA)
+survivalObjTCGA<-merge(ssGSEA,TCGA_clinical[,c(25,21,54,78)],by='row.names')
+rownames(survivalObjTCGA)<-survivalObjTCGA[,1]
+survivalObjTCGA<-survivalObjTCGA[,-1]
+colnames(survivalObjTCGA)<-c('State1','State2','State3','State4','State5','State6','status','time','age','gender')
+
+par(mfrow = c(3,2),
+    oma = c(5, 4, 0, 0) + 0.1,
+    mar = c(2.2, 1.8, 1.5, 0) + 1)
+
+#state1
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,1],decreasing=FALSE),]
+state1.cox <- coxph(Surv(time, status) ~ State1, data = survivalObjTCGA)
+state1.pred <- predict(state1.cox, type = "risk", se.fit = T)
+
+xstate1 <- 1:length(survivalObjTCGA[,1])
+hrstate1 <- state1.pred$fit
+highstate1 <- hrstate1 + 2*state1.pred$se.fit
+lowstate1 <- hrstate1 - 2*state1.pred$se.fit
+
+plot(xstate1, hrstate1, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate1, rev(xstate1)), c(lowstate1, rev(highstate1)), col = "#87b9e8",border=NA)
+lines(xstate1, hrstate1, lwd = 2)
+
+#state2
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,2],decreasing=FALSE),]
+state2.cox <- coxph(Surv(time, status) ~ State2, data = survivalObjTCGA)
+state2.pred <- predict(state2.cox, type = "risk", se.fit = T)
+
+xstate2 <- 1:length(survivalObjTCGA[,1])
+hrstate2 <- state2.pred$fit
+highstate2 <- hrstate2 + 2*state2.pred$se.fit
+lowstate2 <- hrstate2 - 2*state2.pred$se.fit
+
+plot(xstate2, hrstate2, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate2, rev(xstate2)), c(lowstate2, rev(highstate2)), col = "#87b9e8",border=NA)
+lines(xstate2, hrstate2, lwd = 2)
+
+#state3
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,3],decreasing=FALSE),]
+state3.cox <- coxph(Surv(time, status) ~ State3, data = survivalObjTCGA)
+state3.pred <- predict(state3.cox, type = "risk", se.fit = T)
+
+xstate3 <- 1:length(survivalObjTCGA[,1])
+hrstate3 <- state3.pred$fit
+highstate3 <- hrstate3 + 2*state3.pred$se.fit
+lowstate3 <- hrstate3 - 2*state3.pred$se.fit
+
+plot(xstate3, hrstate3, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate3, rev(xstate3)), c(lowstate3, rev(highstate3)), col = "#87b9e8",border=NA)
+lines(xstate3, hrstate3, lwd = 2)
+
+#state4
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,4],decreasing=FALSE),]
+state4.cox <- coxph(Surv(time, status) ~ State4, data = survivalObjTCGA)
+state4.pred <- predict(state4.cox, type = "risk", se.fit = T)
+
+xstate4 <- 1:length(survivalObjTCGA[,1])
+hrstate4 <- state4.pred$fit
+highstate4 <- hrstate4 + 2*state4.pred$se.fit
+lowstate4 <- hrstate4 - 2*state4.pred$se.fit
+
+plot(xstate4, hrstate4, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate4, rev(xstate4)), c(lowstate4, rev(highstate4)), col = "#87b9e8",border=NA)
+lines(xstate4, hrstate4, lwd = 2)
+
+#state5
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,5],decreasing=FALSE),]
+state5.cox <- coxph(Surv(time, status) ~ State5, data = survivalObjTCGA)
+state5.pred <- predict(state5.cox, type = "risk", se.fit = T)
+
+xstate5 <- 1:length(survivalObjTCGA[,1])
+hrstate5 <- state5.pred$fit
+highstate5 <- hrstate5 + 2*state5.pred$se.fit
+lowstate5 <- hrstate5 - 2*state5.pred$se.fit
+
+plot(xstate5, hrstate5, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate5, rev(xstate5)), c(lowstate5, rev(highstate5)), col = "#87b9e8",border=NA)
+lines(xstate5, hrstate5, lwd = 2)
+
+#state6
+survivalObjTCGA <- survivalObjTCGA[order(survivalObjTCGA[,6],decreasing=FALSE),]
+state6.cox <- coxph(Surv(time, status) ~ State6, data = survivalObjTCGA)
+state6.pred <- predict(state6.cox, type = "risk", se.fit = T)
+
+xstate6 <- 1:length(survivalObjTCGA[,1])
+hrstate6 <- state6.pred$fit
+highstate6 <- hrstate6 + 2*state6.pred$se.fit
+lowstate6 <- hrstate6 - 2*state6.pred$se.fit
+
+plot(xstate6, hrstate6, type = "n", ylim = c(0.5, 1.7), xaxs="i", xaxt = "n", cex.axis=1.5)
+polygon(c(xstate6, rev(xstate6)), c(lowstate6, rev(highstate6)), col = "#87b9e8",border=NA)
+lines(xstate6, hrstate6, lwd = 2)

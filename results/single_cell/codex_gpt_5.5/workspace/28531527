@@ -1,0 +1,281 @@
+### Source code for figure 4 ###
+library(networkD3)
+library(Seurat)
+library(GSVA)
+
+#Fig 4A-B
+
+## U3017MG ##
+combinedMatrix3017<-read.table(file='./combinedMatrix3017.txt', header=TRUE, sep="\t",stringsAsFactors = FALSE)
+
+G=read.table(file='/Users/idala384/Dropbox (UU)/Barcoding_project/comp/output/mart_export.txt',header=TRUE,sep="\t",stringsAsFactors=FALSE);
+idx<-match(colnames(combinedMatrix3017)[1:36601],G$Gene.stable.ID)
+colnames(combinedMatrix3017)[1:36601]<-G$Gene.name[idx]
+combinedMatrix3017<-combinedMatrix3017[,!duplicated(colnames(combinedMatrix3017))]
+stateVector3017<-read.table(file = 'stateVector_3017.txt',header=TRUE,sep="\t", stringsAsFactors = FALSE)
+combinedMatrix3017<-merge(combinedMatrix3017,stateVector3017,by='row.names')
+rownames(combinedMatrix3017)<-combinedMatrix3017[,1]
+combinedMatrix3017<-combinedMatrix3017[,-1]
+
+data<-as.data.frame(t(combinedMatrix3017[combinedMatrix3017$days!=0,1:34595]))
+
+U3017MG<-CreateSeuratObject(counts = data, min.cells = 3,min.features =500,project = 'U3017MG',meta.data = combinedMatrix3017[,34596:34598])
+
+#Quality control checks and opt. filtering
+U3017MG[["percent.mt"]] <- PercentageFeatureSet(U3017MG, pattern = "^MT.")
+VlnPlot(U3017MG, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+plot1 <- FeatureScatter(U3017MG, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(U3017MG, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+CombinePlots(plots = list(plot1, plot2))
+U3017MG <- subset(U3017MG, subset = percent.mt < 10)
+
+# Identify the 10 most highly variable genes
+U3017MG <- FindVariableFeatures(U3017MG,do.plot=TRUE,display.progress = F)
+top10 <- head(VariableFeatures(U3017MG), 10)
+plot1 <- VariableFeaturePlot(U3017MG)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+CombinePlots(plots = list(plot1, plot2))
+
+# Normalization
+U3017MG <- SCTransform(U3017MG, verbose = FALSE)
+
+# Dimensionality reduction
+U3017MG <- RunPCA(U3017MG, verbose = FALSE)
+U3017MG <- RunUMAP(U3017MG, dims = 1:30, verbose = FALSE) #umap needs to be installed
+
+U3017MG <- FindNeighbors(U3017MG, dims = 1:30, verbose = FALSE)
+U3017MG <- FindClusters(U3017MG, verbose = TRUE)
+
+plot1<-DimPlot(U3017MG,reduction = "umap", group.by = 'days')
+plot2<-DimPlot(U3017MG,reduction = "umap", group.by = 'states3017.cluster')
+
+# Cell cycle reduction
+data('cc.genes')
+cc.genes
+U3017MG <- CellCycleScoring(object = U3017MG, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, 
+                            set.ident = TRUE)
+plot3<-DimPlot(U3017MG,reduction = "umap", group.by = 'Phase')
+
+#cell cycle mitigated (to not remove difference between differentiated and stem cells)
+U3017MG@meta.data$CC.Difference <- U3017MG@meta.data$S.Score - U3017MG@meta.data$G2M.Score
+all.genes <- rownames(U3017MG)
+U3017MG.cellcyclemitigated <- ScaleData(object = U3017MG, vars.to.regress = "CC.Difference", display.progress = TRUE,features = all.genes)
+
+U3017MG.cellcyclemitigated <- SetIdent(object = U3017MG.cellcyclemitigated, value = U3017MG.cellcyclemitigated@meta.data$states3017.cluster)
+U3017MG.markers <- FindAllMarkers(object = U3017MG.cellcyclemitigated,test.use='MAST')
+top10 <- U3017MG.markers %>% group_by(cluster) %>% top_n(10,avg_logFC)
+#DoHeatmap(object=U3017MG.cellcyclemitigated,features =top10$gene)
+
+U3017MG.cellcyclemitigated <- RunPCA(U3017MG.cellcyclemitigated, verbose = FALSE)
+U3017MG.cellcyclemitigated <- RunUMAP(U3017MG.cellcyclemitigated, dims = 1:30, verbose = FALSE)
+
+plot3<-DimPlot(U3017MG.cellcyclemitigated,reduction = "umap",group.by = 'states3017.cluster')
+
+##
+
+## U3071MG ##
+combinedMatrix3071<-read.table(file='./combinedMatrix3071.txt', header=TRUE, sep="\t",stringsAsFactors = FALSE)
+
+G=read.table(file='/Users/idala384/Dropbox (UU)/Barcoding_project/comp/output/mart_export.txt',header=TRUE,sep="\t",stringsAsFactors=FALSE);
+idx<-match(colnames(combinedMatrix3071)[1:36601],G$Gene.stable.ID)
+colnames(combinedMatrix3071)[1:36601]<-G$Gene.name[idx]
+combinedMatrix3071<-combinedMatrix3071[,!duplicated(colnames(combinedMatrix3071))]
+stateVector3071<-read.table(file = 'stateVector_3071.txt',header=TRUE,sep="\t", stringsAsFactors = FALSE)
+combinedMatrix3071<-merge(combinedMatrix3071,stateVector3071,by='row.names')
+rownames(combinedMatrix3071)<-combinedMatrix3071[,1]
+combinedMatrix3071<-combinedMatrix3071[,-1]
+
+data<-as.data.frame(t(combinedMatrix3071[combinedMatrix3071$days!=0,1:34595]))
+
+U3071MG<-CreateSeuratObject(counts = data, min.cells = 3,min.features =500,project = 'U3071MG',meta.data = combinedMatrix3071[,34596:34598])
+
+#Quality control checks and opt. filtering
+U3071MG[["percent.mt"]] <- PercentageFeatureSet(U3071MG, pattern = "^MT.")
+VlnPlot(U3071MG, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+plot1 <- FeatureScatter(U3071MG, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(U3071MG, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+CombinePlots(plots = list(plot1, plot2))
+U3071MG <- subset(U3071MG, subset = percent.mt < 20)
+
+# Identify the 10 most highly variable genes
+U3071MG <- FindVariableFeatures(U3071MG,do.plot=TRUE,display.progress = F)
+top10 <- head(VariableFeatures(U3071MG), 10)
+plot1 <- VariableFeaturePlot(U3071MG)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+CombinePlots(plots = list(plot1, plot2))
+
+# Normalization
+U3071MG <- SCTransform(U3071MG, verbose = FALSE)
+
+# Dimensionality reduction
+U3071MG <- RunPCA(U3071MG, verbose = FALSE)
+U3071MG <- RunUMAP(U3071MG, dims = 1:30, verbose = FALSE) #umap needs to be installed
+
+U3071MG <- FindNeighbors(U3071MG, dims = 1:30, verbose = FALSE)
+U3071MG <- FindClusters(U3071MG, verbose = TRUE)
+
+plot1<-DimPlot(U3071MG,reduction = "umap", group.by = 'days')
+plot2<-DimPlot(U3071MG,reduction = "umap", group.by = 'states3071.cluster')
+
+# Cell cycle reduction
+data('cc.genes')
+cc.genes
+U3071MG <- CellCycleScoring(object = U3071MG, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, 
+                            set.ident = TRUE)
+plot3<-DimPlot(U3071MG,reduction = "umap", group.by = 'Phase')
+
+#cell cycle mitigated (to not remove difference between differentiated and stem cells)
+U3071MG@meta.data$CC.Difference <- U3071MG@meta.data$S.Score - U3071MG@meta.data$G2M.Score
+all.genes <- rownames(U3071MG)
+U3071MG.cellcyclemitigated <- ScaleData(object = U3071MG, vars.to.regress = "CC.Difference", display.progress = TRUE,features = all.genes)
+
+U3071MG.cellcyclemitigated <- SetIdent(object = U3071MG.cellcyclemitigated, value = U3071MG.cellcyclemitigated@meta.data$states3071.cluster)
+U3071MG.markers <- FindAllMarkers(object = U3071MG.cellcyclemitigated,test.use='MAST')
+
+U3071MG.cellcyclemitigated <- RunPCA(U3071MG.cellcyclemitigated, verbose = FALSE)
+U3071MG.cellcyclemitigated <- RunUMAP(U3071MG.cellcyclemitigated, dims = 1:30, verbose = FALSE)
+
+plot3<-DimPlot(U3071MG.cellcyclemitigated,reduction = "umap",group.by = 'Phase')
+plot4<-DimPlot(U3071MG.cellcyclemitigated,reduction = "umap",group.by = 'states3071.cluster')
+
+#Fig C-F
+#Created using matlab 
+#STAG software available on https://github.com/idalarsson/STAG
+
+#Fig G-H
+stateSignatures<-read.table(file='/Users/idala384/Dropbox (UU)/Barcoding_project/revision/data/genesets/clusterMarkers.txt',sep="\t",header=TRUE)
+geneSet<-list(stateSignatures$State1,stateSignatures$State2,stateSignatures$State3,stateSignatures$State4,stateSignatures$State5,stateSignatures$State6)
+geneSet[[6]]<-geneSet[[6]][1:42]
+names(geneSet)<-c('State1','State2','State3','State4','State5','State6')
+
+X<-GetAssayData(U3017MG.cellcyclemitigated,slot='scale.data')
+ssGSEA<-gsva(expr=X,gset.idx.list = geneSet,method='ssgsea')
+ssGSEA<-as.data.frame(t(ssGSEA))
+
+stateVector<-c()
+for (i in 1:nrow(ssGSEA)){
+  print(i)
+  state<-which.max(ssGSEA[i,])
+  stateVector<-append(stateVector,state[[1]])
+}
+
+stateVector<-as.data.frame(stateVector)
+rownames(stateVector)<-rownames(ssGSEA)
+U3017<-AddMetaData(U3017,stateVector)
+
+# U3017 states --> U3065 states
+sankey3017<-array(0,dim=c(36,3))
+colnames(sankey3017)<-c('source','target','value')
+
+k=1
+for (i in 1:6){
+  for (j in 1:6){
+    sankey3017[k,1]<-i
+    sankey3017[k,2]<-j
+    tmp<-which(U3017@meta.data$states3017.cluster == i & U3017@meta.data$stateVector ==j)
+    value<-length(tmp)
+    sankey3017[k,3]<-value
+    k=k+1
+  }
+}
+
+sankey3017<-as.data.frame(sankey3017)
+sankey3017$source<-gsub(1,0,sankey3017$source)
+sankey3017$source<-gsub(2,1,sankey3017$source)
+sankey3017$source<-gsub(3,2,sankey3017$source)
+sankey3017$source<-gsub(4,3,sankey3017$source)
+sankey3017$source<-gsub(5,4,sankey3017$source)
+sankey3017$source<-gsub(6,5,sankey3017$source)
+
+sankey3017[c(1,7,13,19,25,31),2]=6
+sankey3017[c(2,8,14,20,26,32),2]=7
+sankey3017[c(3,9,15,21,27,33),2]=8
+sankey3017[c(4,10,16,22,28,34),2]=9
+sankey3017[c(5,11,17,23,29,35),2]=10
+sankey3017[c(6,12,18,24,30,36),2]=11
+
+nodes<-c('stateC','stateD','stateF','stateB','stateA','stateE','state1','state2','state3','state4','state5','state6')
+nodes<-as.data.frame(nodes)
+
+rownames(nodes)<-c('0','1','2','3','4','5','6','7','8','9','10','11')
+
+sankey3017$source<-as.numeric(sankey3017$source)
+sankey3017$target<-as.numeric(sankey3017$target)
+sankey3017$value<-as.numeric(sankey3017$value)
+
+idx<-which(sankey3017$value<median(sankey3017$value))
+sankey3017<-sankey3017[-idx,]
+
+sankeyNetwork(Links = sankey3017, Nodes = nodes,
+              Source = "source", Target = "target",
+              Value = "value",
+              fontSize= 12, nodeWidth = 30)
+
+
+
+###
+X<-GetAssayData(U3071MG.cellcyclemitigated,slot='scale.data')
+ssGSEA<-gsva(expr=X,gset.idx.list = geneSet,method='ssgsea')
+ssGSEA<-as.data.frame(t(ssGSEA))
+
+stateVector<-c()
+for (i in 1:nrow(ssGSEA)){
+  print(i)
+  state<-which.max(ssGSEA[i,])
+  stateVector<-append(stateVector,state[[1]])
+}
+
+stateVector<-as.data.frame(stateVector)
+rownames(stateVector)<-rownames(ssGSEA)
+U3071<-AddMetaData(U3071,stateVector)
+
+# U3071 states --> U3065 states
+sankey3071<-array(0,dim=c(36,3))
+colnames(sankey3071)<-c('source','target','value')
+
+k=1
+for (i in 1:6){
+  for (j in 1:6){
+    sankey3071[k,1]<-i
+    sankey3071[k,2]<-j
+    tmp<-which(U3071@meta.data$states3071.cluster == i & U3071@meta.data$stateVector ==j)
+    value<-length(tmp)
+    sankey3071[k,3]<-value
+    k=k+1
+  }
+}
+
+sankey3071<-as.data.frame(sankey3071)
+sankey3071$source<-gsub(1,0,sankey3071$source)
+sankey3071$source<-gsub(2,1,sankey3071$source)
+sankey3071$source<-gsub(3,2,sankey3071$source)
+sankey3071$source<-gsub(4,3,sankey3071$source)
+sankey3071$source<-gsub(5,4,sankey3071$source)
+sankey3071$source<-gsub(6,5,sankey3071$source)
+
+sankey3071[c(1,7,13,19,25,31),2]=6
+sankey3071[c(2,8,14,20,26,32),2]=7
+sankey3071[c(3,9,15,21,27,33),2]=8
+sankey3071[c(4,10,16,22,28,34),2]=9
+sankey3071[c(5,11,17,23,29,35),2]=10
+sankey3071[c(6,12,18,24,30,36),2]=11
+
+nodes<-c('stateI','stateII','stateIII','stateV','stateIV','stateVI','state1','state2','state3','state4','state5','state6')
+nodes<-as.data.frame(nodes)
+
+rownames(nodes)<-c('0','1','2','3','4','5','6','7','8','9','10','11')
+
+sankey3071$source<-as.numeric(sankey3071$source)
+sankey3071$target<-as.numeric(sankey3071$target)
+sankey3071$value<-as.numeric(sankey3071$value)
+
+idx<-which(sankey3071$value<median(sankey3071$value))
+sankey3071<-sankey3071[-idx,]
+
+sankeyNetwork(Links = sankey3071, Nodes = nodes,
+              Source = "source", Target = "target",
+              Value = "value",
+              fontSize= 12, nodeWidth = 30)
+
+
+

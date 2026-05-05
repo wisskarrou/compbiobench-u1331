@@ -1,0 +1,16 @@
+{
+  "top_2": [
+    {
+      "icd_code": "4019",
+      "patient_count": 41,
+      "long_title": "Unspecified essential hypertension"
+    },
+    {
+      "icd_code": "2724",
+      "patient_count": 34,
+      "long_title": "Other and unspecified hyperlipidemia"
+    }
+  ],
+  "total_diagnoses": 1472,
+  "total_patients": 100,
+  "patients_with_dod": 

@@ -1,0 +1,40 @@
+### Source code for figure 1 ###
+library(gridExtra)
+
+#Fig 1A
+#Created using Adobe Illustrator
+
+#Fig 1B-C
+combinedMatrix<-read.table(file='combinedMatrix.txt', header=TRUE, sep="\t",stringsAsFactors = FALSE)
+rownames(combinedMatrix)<-combinedMatrix[,1]
+combinedMatrix<-combinedMatrix[,-1]
+
+idx0<-which(combinedMatrix$days==0)
+idx7<-which(combinedMatrix$days==7)
+idx14<-which(combinedMatrix$days==14)
+idx21<-which(combinedMatrix$days==21)
+
+par(mfrow=c(2,2))
+
+p1<-plot(table(combinedMatrix[idx0,33539]),ylim=c(0,10),xaxt='n')
+p2<-plot(table(combinedMatrix[idx7,33539]),ylim=c(0,50),xaxt='n')
+p3<-plot(table(combinedMatrix[idx14,33539]),ylim=c(0,50),xaxt='n')
+p4<-plot(table(combinedMatrix[idx21,33539]),ylim=c(0,50),xaxt='n')
+
+dev.off()
+
+#Fig 1D-E
+#See Figure1.m for generation of simulated data
+
+galton_watson<-read.table(file='simulated_galton_watson.txt', header=TRUE, sep="\t",stringsAsFactors = FALSE)
+
+par(mfrow=c(2,2))
+
+p1<-barplot(galton_watson$X7,ylim=c(0,50))
+p2<-barplot(galton_watson$X14,ylim=c(0,50))
+p3<-barplot(galton_watson$X21,ylim=c(0,50))
+
+dev.off()
+
+#Fig F
+#Created using GSEA

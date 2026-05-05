@@ -1,0 +1,1 @@
+Disease A: ICD-9 | 4019 → "Unspecified essential hypertension"; Disease B: ICD-9 | 2724 → "Other and unspecified hyperlipidemia"

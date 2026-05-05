@@ -1,0 +1,140 @@
+%%% Source code for figure 1 %%%
+% Fig 3A and Fig 5A 
+
+figure('rend','painters','pos',[10 10 1100 500])
+%function test_gsea()
+
+% format of gsea_summary.txt:
+% statename | geneset | nes | fdr
+t=readtable('gsea_summary.txt','delimiter','\t'); 
+t=rmmissing(t);
+
+%%
+
+state=table2cell(t(:,1));
+pathway=table2cell(t(:,2));
+es=cell2mat(table2cell(t(:,3)));
+qval=cell2mat(table2cell(t(:,4)));
+qval=qval+1/(10^6);
+[statename,~,ixstate]=unique(state);
+[pathname,~,ixpathway]=unique(pathway);
+
+for i=1:length(pathname)
+    pathname{i}(pathname{i}=='_')=' ';
+    f=regexp(pathname{i},'HALLMARK ');
+    if(f)
+        pathname{i}=pathname{i}(10:end);
+    end
+end
+
+for i=1:length(pathname)
+    pathname{i}(pathname{i}=='_')=' ';
+end
+
+%%
+
+ES=full(spconvert([ixstate ixpathway es]));
+QV=ones(size(ES)); % default is p value 1
+qv=spconvert([ixstate ixpathway qval]);
+QV(find(qv))=qv(find(qv));
+QV=full(QV);
+
+pathname
+
+%%
+
+    [~,~,f]=intersect({'GAROFANO IAVARONE LIST OF NEURAL PROGENITOR MARKER GENES',
+    'GAROFANO IAVARONE MTC SUBTYPE'                           ,
+    'GAROFANO IAVARONE NEU SUBTYPE'                           ,
+    'GAROFANO IAVARONE PPR SUBTYPE'                           ,
+    'E2F TARGETS'                                             ,
+    'EPITHELIAL MESENCHYMAL TRANSITION'                       ,
+    'G2M CHECKPOINT'                                          ,
+    'GLYCOLYSIS'                                              ,
+    'HYPOXIA'                                                 ,
+    'MITOTIC SPINDLE'                                         ,
+    'OXIDATIVE PHOSPHORYLATION'                               ,
+    'P53 PATHWAY'                                             ,
+    'RICHARDS ZHONG NATURE 2018 ASTROCYTES UPREG'             ,
+    'RICHARDS ZHONG NATURE 2018 NPCS UPREG'                   ,
+    'RICHARDS ZHONG NATURE 2018 OPC UPREG'                    ,
+    'SUVA AC PMID 31327527'                                   ,
+    'SUVA G1S PMID 31327527'                                  ,
+    'SUVA G2M PMID 31327527'                                  ,
+    'SUVA MES1 PMID 31327527'                                 ,
+    'SUVA MES2 PMID 31327527'                                 ,
+    'SUVA NPC1 PMID 31327527'                                 ,
+    'SUVA NPC2 PMID 31327527'                                 ,
+    'SUVA OPC PMID 31327527'                                  ,
+    'WANG CLASSICAL PMID 28697342'                            ,
+    'WANG MESENCHYMAL PMID 28697342'                          ,
+    'WANG PRONEURAL PMID 28697342'                            ,
+    'WENG STEMNESS PMID 30982771'                             },pathname)
+
+%%
+QV=QV(:,f);
+ES=ES(:,f);
+pathname=pathname(f);
+%%
+[~,ix_path]=sort(kmeans(ES',2,'replicates',100));
+ix_state=[1;2;3;4;5;6];
+%%
+QV=QV(ix_state,ix_path);
+ES=ES(ix_state,ix_path);
+pathname=pathname(ix_path);
+statename=statename(ix_state);
+
+%%
+mech_action=zeros(size(ES));
+
+%%
+colz=get(gca,'colororder');
+
+for i=1:size(QV,1)
+    for j=1:size(QV,2)
+        if(ES(i,j)>0)
+            col=colz(2,:);%=[1 0.2 0.2];
+        else
+            col=colz(1,:);%[0.2 0.2 1];
+        end
+        diam=-log10(QV(i,j)+0.0001)*3;
+        if(QV(i,j)<0.20)
+          plot(i,j,'o','MarkerSize',1+diam,'MarkerFaceColor',col,'MarkerEdgeColor',col)
+        end
+        hold on;
+        if(mech_action(i,j))
+            pp=plot(i,j,'o','markersize',4+diam,'MarkerEdgeColor',colz(3,:),'LineWidth',4,'LineStyle',':');
+        end
+        
+    end
+end
+for i=1:length(statename)
+    text(i,length(pathname)+1,statename{i},'rotation',45);
+end
+for i=1:length(pathname)
+    text(-10,i,pathname{i});
+    hold on;
+end
+a=axis();
+a(1)=-11;
+a(3)=-1;
+a(4)=a(4)+6;
+a(2)=a(2)+8;
+
+for i=1:4
+    qv=10^(-i);
+    diam=-log10(qv+0.0001)*3;
+    plot((a(2)-6),i','ko','MarkerSize',diam);
+    text(a(2)-5.5,i,['q = 10^{' num2str(-i) '}']);
+end
+tags={'negatively enriched','positively enriched',''};
+for i=1:3
+    p=plot(a(2)-6,5+i,'o','MarkerSize',10,'MarkerFaceColor',colz(4-i,:),'MarkerEdgeColor',colz(4-i,:),'LineWidth',3);
+    if(i==1)
+        p.MarkerFaceColor=[1 1 1];
+    end
+    text(a(2)-5.5,5+i,tags{4-i});
+end
+axis(a);
+set(gca,'XGrid','off','YGrid','off');
+

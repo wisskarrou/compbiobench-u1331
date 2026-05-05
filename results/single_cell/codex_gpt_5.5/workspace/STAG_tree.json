@@ -1,0 +1,78 @@
+{
+  "sha": "49e7ab7825993d48fe584efa0fd247bc922dfcc6",
+  "url": "https://api.github.com/repos/idalarsson/STAG/git/trees/49e7ab7825993d48fe584efa0fd247bc922dfcc6",
+  "tree": [
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5f0834f016c8715ff9c14d024e74a844b8a1e9d3",
+      "size": 1148,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/5f0834f016c8715ff9c14d024e74a844b8a1e9d3"
+    },
+    {
+      "path": "expressionMatrices_20210622.mat",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fa734201a44f454a7281c80b2dbbf134d823787c",
+      "size": 447295,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/fa734201a44f454a7281c80b2dbbf134d823787c"
+    },
+    {
+      "path": "matlab",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "40b6a9b2b9c951da9e234c4487b7548e68b630e9",
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/trees/40b6a9b2b9c951da9e234c4487b7548e68b630e9"
+    },
+    {
+      "path": "matlab/datatobarcodedata.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "caf4109932edfb619b82bddaada8b1f93cb15182",
+      "size": 1483,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/caf4109932edfb619b82bddaada8b1f93cb15182"
+    },
+    {
+      "path": "matlab/main.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e06902921d1d39a1d1635d46b9e1e3745bbe1446",
+      "size": 2593,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/e06902921d1d39a1d1635d46b9e1e3745bbe1446"
+    },
+    {
+      "path": "matlab/netfrombarcode.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7c954fbccaf5a30e396375e4631c483b7c94d029",
+      "size": 4526,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/7c954fbccaf5a30e396375e4631c483b7c94d029"
+    },
+    {
+      "path": "matlab/plotmynetwork.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "96040caeee8d14b7130f5f92a416ad7f1eba96ef",
+      "size": 190,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/96040caeee8d14b7130f5f92a416ad7f1eba96ef"
+    },
+    {
+      "path": "matlab/singleGeneScore.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "92b5c5d926cf169c10e3369d561e3e4b15c05eb7",
+      "size": 896,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/92b5c5d926cf169c10e3369d561e3e4b15c05eb7"
+    },
+    {
+      "path": "matlab/stateassignment.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dc0d3f6aaf36d42198bd8d356450651c80194d63",
+      "size": 2098,
+      "url": "https://api.github.com/repos/idalarsson/STAG/git/blobs/dc0d3f6aaf36d42198bd8d356450651c80194d63"
+    }
+  ],
+  "truncated": false
+}

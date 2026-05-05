@@ -1,0 +1,71 @@
+MAGE-TAB Version	1.1
+Investigation Title	Lineage tracing of patient-derived U3065MG glioblastoma cells to reconstruct plasticity
+
+Experimental Design	time series design
+Experimental Design Term Source REF	EFO
+Experimental Design Term Accession Number	EFO:0001779
+
+Experimental Factor Name	time
+Experimental Factor Type	time
+Experimental Factor Term Source REF	EFO
+Experimental Factor Term Accession Number	EFO_0000721
+
+Person Last Name	Larsson
+Person First Name	Ida
+Person Mid Initials
+Person Email	ida.larsson@igp.uu.se
+Person Phone
+Person Fax
+Person Affiliation	Department of Immunology, Genetics and Pathology, Uppsala University, Sweden
+Person Address	Dag Hammarskjölds väg 20 751 85 Uppsala Sweden
+Person Roles	submitter
+Person Roles Term Source REF
+Person Roles Term Accession Number
+
+Quality Control Type
+Quality Control Term Source REF
+Quality Control Term Accession Number
+
+Replicate Type
+Replicate Term Source REF
+Replicate Term Accession Number
+
+Normalization Type
+Normalization Term Source REF
+Normalization Term Accession Number
+
+Date of Experiment	2021-05-07
+Public Release Date	2021-07-07
+
+PubMed ID
+Publication DOI
+Publication Author List
+Publication Title
+Publication Status
+Publication Status Term Source REF
+Publication Status Term Accession Number
+
+Experiment Description	The aim of the experiment was to obtain a time series data set of barcoded glioblastoma cells to use as input for a mathematical model of glioblastoma state transition and growth, to reconstruct the structure of the transition network, the transition rates, and individual growth rates of each state.
+
+Protocol Name	P-MTAB-111272	P-MTAB-111273	P-MTAB-111274	P-MTAB-111275
+Protocol Type	sample collection protocol	nucleic acid extraction protocol	nucleic acid library construction protocol	nucleic acid sequencing protocol
+Protocol Term Source REF	EFO	EFO	EFO	EFO
+Protocol Term Accession Number	EFO_0005518	EFO_0002944	EFO_0004184	EFO_0004170
+Protocol Description	Four days before the time series start point, 8*10^5 passage 6 U3065MG cells were infected with the BFP expressing Perturbseq lentivirus at a MOI of < 0.1. Cells were incubated with the lentivirus as a single cell suspension in 20 µl of media for 4 hours at 37°C and seeded onto a laminin coated 60 mm dish. The next day, virus containing media was replaced with fresh media.At experimental day 0, 2500 BFP positive U3065 cells were sorted into one well on a 96 well plate coated with laminin. Cells were allowed to grow under stem cell conditions, and culture media was changed at day 3, 10 and 17. At experimental day 7 and 14, all cells were detached and 80% of the cells frozen down in media with 10% DMSO in -150°C, while the remaining 20% were seeded into a new well. After 21 days at the experimental endpoint, all cells were frozen down.	Cells were washed in 0.1% BSA in PBS before library preparation with the Chromium Single Cell 3’ GEM, Library & Gel Bead Kit v3 according to the manufacturer’s instructions.	Chromium Single Cell 3’ GEM, Library & Gel Bead Kit v3.	Libraries were pair-end sequenced usin a NextSeq 500 sequencer (Illumina).
+Protocol Parameters
+Protocol Hardware				Illumina NovaSeq 6000
+Protocol Software
+Protocol Contact
+
+Term Source Name	EFO	ArrayExpress
+Term Source File	http://www.ebi.ac.uk/efo/	http://www.ebi.ac.uk/arrayexpress/
+Term Source Version	2.38
+
+SDRF File	E-MTAB-10615.sdrf.txt
+Comment [Submitted Name]	Lineage tracing of patient-derived U3065MG glioblastoma cells to reconstruct plasticity
+Comment [TemplateType]	Cell line - Single-cell sequencing
+Comment [SecondaryAccession]	ERP130116
+Comment [SequenceDataURI]	http://www.ebi.ac.uk/ena/data/view/ERR6131690-ERR6131751
+Comment [AEExperimentType]	RNA-seq of coding RNA from single cells
+Comment[ArrayExpressAccession]	E-MTAB-10615
+Comment [RelatedExperiment]	E-MTAB-9296

@@ -1,0 +1,110 @@
+### Source code for figure 2 ###
+library(Seurat)
+
+# Fig 2A
+combinedMatrix<-read.table(file='combinedMatrix.txt', header=TRUE, sep="\t",stringsAsFactors = FALSE)
+rownames(combinedMatrix)<-combinedMatrix[,1]
+combinedMatrix<-combinedMatrix[,-1]
+G=read.table(file='mart_export.txt',header=TRUE,sep="\t",stringsAsFactors=FALSE);
+idx<-match(colnames(combinedMatrix)[1:33538],G$Gene.stable.ID)
+colnames(combinedMatrix)[1:33538]<-G$Gene.name[idx]
+combinedMatrix<-combinedMatrix[,!duplicated(colnames(combinedMatrix))]
+states<-read.table(file='expMatNoGenes9jan.txt',header=TRUE, sep="\t", stringsAsFactors = FALSE)
+rownames(states)<-states[,1]
+states<-states[,-1]
+states[,3]<-c(1, 5, 3, 2, 6, 4, states[,3])[match(states[,3], c(1, 2, 3, 4, 5, 6, states[,3]))]
+combinedMatrix<-merge(combinedMatrix,states[,3,drop=FALSE],by='row.names')
+rownames(combinedMatrix)<-combinedMatrix[,1]
+combinedMatrix<-combinedMatrix[,-1]
+data<-as.data.frame(t(combinedMatrix[combinedMatrix$days!=0,1:33425]))
+
+U3065MG<-CreateSeuratObject(counts = data, min.cells = 3,min.features =500,project = 'Non_treatment',meta.data = combinedMatrix[,33426:33428])
+U3065MG <- SCTransform(U3065MG, verbose = FALSE)
+
+data('cc.genes')
+cc.genes
+U3065MG <- CellCycleScoring(object = U3065MG, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, 
+                          set.ident = TRUE)
+U3065MG@meta.data$CC.Difference <- U3065MG@meta.data$S.Score - U3065MG@meta.data$G2M.Score
+U3065MG.cellcyclemitigated <- ScaleData(object = U3065MG, vars.to.regress = "CC.Difference", display.progress = TRUE,features = all.genes)
+U3065MG.cellcyclemitigated <- RunPCA(U3065MG.cellcyclemitigated, verbose = FALSE)
+U3065MG.cellcyclemitigated <- RunUMAP(U3065MG.cellcyclemitigated, dims = 1:30, verbose = FALSE)
+
+umap<-DimPlot(U3065MG.cellcyclemitigated,reduction = "umap",group.by = 'states')
+
+#Fig 2B
+#Created using GraphPad
+
+#Fig 2C
+idx7<-which(U3065MG.cellcyclemitigated@meta.data$days==7)
+idx14<-which(U3065MG.cellcyclemitigated@meta.data$days==14)
+idx21<-which(U3065MG.cellcyclemitigated@meta.data$days==21)
+
+cells7<-rownames(U3065MG.cellcyclemitigated@meta.data)[idx7]
+cells14<-rownames(U3065MG.cellcyclemitigated@meta.data)[idx14]
+cells21<-rownames(U3065MG.cellcyclemitigated@meta.data)[idx21]
+
+umap7<-DimPlot(U3065MG.cellcyclemitigated,cells=cells7,reduction = "umap",group.by = 'states')
+umap14<-DimPlot(U3065MG.cellcyclemitigated,cells=cells14,reduction = "umap",group.by = 'states')
+umap21<-DimPlot(U3065MG.cellcyclemitigated,cells=cells21,reduction = "umap",group.by = 'states')
+
+#Fig 2D-F 
+#Created using matlab 
+#STAG software available on https://github.com/idalarsson/STAG
+
+#Fig 2G
+#Created using FlowJo
+
+#Fig 2H
+# Read data into Seurat-object
+data_dir <- '/Users/idala384/Desktop/UC2915/UC-2915/210505_A00605_0215_BHWVYHDMXX/run_count_sample9/outs/filtered_feature_bc_matrix/'
+list.files(data_dir) # Should show barcodes.tsv, genes.tsv, and matrix.mtx
+klon475_data <- Read10X(data.dir = data_dir)
+klon475 = CreateSeuratObject(counts = klon475_data, min.cells = 3, min.features =500)
+
+#Quality control checks and opt. filtering
+klon475[["percent.mt"]] <- PercentageFeatureSet(klon475, pattern = "^MT.")
+VlnPlot(klon475, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+plot1 <- FeatureScatter(klon475, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(klon475, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+CombinePlots(plots = list(plot1, plot2))
+klon475 <- subset(klon475, subset = percent.mt < 20)
+
+# Identify the 10 most highly variable genes
+klon475 <- FindVariableFeatures(klon475,do.plot=TRUE,display.progress = F)
+top10 <- head(VariableFeatures(klon475), 10)
+plot1 <- VariableFeaturePlot(klon475)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+plot1+plot2
+
+# Normalization
+klon475 <- SCTransform(klon475, verbose = FALSE)
+
+# Cell cycle reduction
+data('cc.genes')
+cc.genes
+klon475 <- CellCycleScoring(object = klon475, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, 
+                            set.ident = TRUE)
+
+klon475@meta.data$CC.Difference <- klon475@meta.data$S.Score - klon475@meta.data$G2M.Score
+all.genes <- rownames(klon475)
+klon475.cellcyclemitigated <- ScaleData(object = klon475, vars.to.regress = "CC.Difference", display.progress = TRUE,features = all.genes)
+
+stateSignatures<-read.table(file='clusterMarkers.txt',sep="\t",header=TRUE)
+geneSet<-list(stateSignatures$State1,stateSignatures$State2,stateSignatures$State3,stateSignatures$State4,stateSignatures$State5,stateSignatures$State6)
+geneSet[[6]]<-geneSet[[6]][1:42]
+names(geneSet)<-c('State1','State2','State3','State4','State5','State6')
+
+x<-GetAssayData(klon475.cellcyclemitigated,slot='scale.data')
+ssGSEA<-gsva(expr=x,gset.idx.list = geneSet,method='ssgsea')
+ssGSEA<-as.data.frame(t(ssGSEA))
+
+stateVector<-c()
+for (i in 1:nrow(ssGSEA)){
+  print(i)
+  state<-which.max(ssGSEA[i,]) #ändra
+  stateVector<-append(stateVector,state[[1]])
+}
+
+barplot(table(stateVector))
+
